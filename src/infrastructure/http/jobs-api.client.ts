@@ -1,13 +1,14 @@
 import { JobDataProcessed } from '@domain/port/IJobEnrichment.port';
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JobsApiClient {
   private readonly logger = new Logger(JobsApiClient.name);
   private readonly baseUrl: string;
 
-  constructor() {
-    const port = process.env.JOBS_API_PORT ?? '3000';
+  constructor(private configService: ConfigService) {
+    const port = this.configService.get<string>('JOBS_API_PORT', '3000');
     this.baseUrl = `http://localhost:${port}`;
   }
 

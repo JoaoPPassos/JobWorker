@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { source_type } from '@shared/enums/source.enum';
-import { LinkedinUseCase } from '../use-cases/linkedin-use-case.use-case';
-import { JobDataProcessed } from '@domain/port/IJobEnrichment.port';
 import { JobsApiClient } from '@infrastructure/http/jobs-api.client';
+import { EnrichmentUseCaseFactory } from '../factories/enrichment-use-case.factory';
 
 @Injectable()
 export class JobEnrichmentsConsumerService {
   constructor(
-    private likedinUseCase: LinkedinUseCase,
+    private useCaseFactory: EnrichmentUseCaseFactory,
     private jobsApiClient: JobsApiClient,
   ) {}
 
@@ -16,14 +14,11 @@ export class JobEnrichmentsConsumerService {
     sourceUrl: string;
     sourcePlatform: string;
   }) {
-    let data: JobDataProcessed | undefined;
+    const useCase = this.useCaseFactory.getUseCase(msg.sourcePlatform);
 
-    if (msg.sourcePlatform === source_type.linkedin) {
-      data = await this.likedinUseCase.execute(msg.sourceUrl);
-    }
+    if (!useCase) return;
 
-    if (data) {
-      await this.jobsApiClient.updateJobMetadata(msg.jobId, data);
-    }
+    const data = await useCase.execute(msg.sourceUrl);
+    await this.jobsApiClient.updateJobMetadata(msg.jobId, data);
   }
 }

@@ -8,7 +8,6 @@ export function mapLinkedinToJobData(
     title: data.title,
     company: data.companyName,
     description: data.description,
-    salary_range: '',
     location: data.location,
   };
 }
