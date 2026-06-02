@@ -14,9 +14,7 @@ export class LinkedinProcessor implements IJobEnrichmentProcessor {
   private readonly apiKey: string;
 
   constructor(private configService: ConfigService) {
-    this.apiKey =
-      this.configService.getOrThrow<string>('RAPIDAPI_KEY') ||
-      'a699f108a4msh8661da2bbd5b533p1bd980jsnf1e4ed4dd2f9';
+    this.apiKey = this.configService.getOrThrow<string>('RAPIDAPI_KEY');
   }
 
   async processContent(sourceUrl: string) {
