@@ -1,26 +1,25 @@
-FROM node:22-alpine AS builder
-
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json ./
+RUN npm install
 
 COPY . .
-RUN pnpm build
+RUN npm run build && test -f dist/main.js || (echo "ERROR: dist/main.js not found after build" && exit 1)
 
-FROM node:22-alpine AS production
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:22-slim AS production
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
+COPY package.json ./
+RUN npm install --omit=dev
 
 COPY --from=builder /app/dist ./dist
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+ENTRYPOINT ["./entrypoint.sh"]
