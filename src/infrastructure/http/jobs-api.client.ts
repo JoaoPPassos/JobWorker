@@ -8,8 +8,7 @@ export class JobsApiClient {
   private readonly baseUrl: string;
 
   constructor(private configService: ConfigService) {
-    const port = this.configService.get<string>('JOBS_API_PORT', '3000');
-    this.baseUrl = `http://localhost:${port}`;
+    this.baseUrl = this.configService.getOrThrow<string>('JOB_HUB_SERVICE_URL');
   }
 
   async updateJobMetadata(

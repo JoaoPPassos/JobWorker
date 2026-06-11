@@ -1,0 +1,10 @@
+services:
+  app:
+    image: ghcr.io/joaoppassos/job-worker:latest
+    pull_policy: always
+    container_name: job-worker-app
+    restart: unless-stopped
+    ports:
+      - "${PORT}:${PORT}"
+    env_file:
+      - .env
